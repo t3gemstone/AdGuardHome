@@ -5,14 +5,14 @@ import (
 	"net/netip"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghtest"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtest"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 func TestServer_filterDNSResponse(t *testing.T) {

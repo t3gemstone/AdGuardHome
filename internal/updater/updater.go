@@ -20,13 +20,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
-	"github.com/AdguardTeam/AdGuardHome/internal/version"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/ioutil"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil/urlutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/version"
 )
 
 // Updater is the AdGuard Home updater.

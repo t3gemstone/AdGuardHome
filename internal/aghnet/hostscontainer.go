@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"sync/atomic"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/hostsfile"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // hostsContainerPrefix is a prefix for wrapping errors in HostsContainer's

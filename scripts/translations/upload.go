@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/httphdr"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
 )
 
 // upload uploads the base locale file.

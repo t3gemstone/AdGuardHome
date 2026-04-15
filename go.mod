@@ -1,4 +1,4 @@
-module github.com/AdguardTeam/AdGuardHome
+module github.com/t3gemstone/AdGuardHome
 
 go 1.26.2
 

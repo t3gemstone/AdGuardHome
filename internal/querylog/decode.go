@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering/rulelist"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/urlfilter/rules"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering/rulelist"
 )
 
 // logEntryHandler represents a handler for decoding json token to the logEntry

@@ -3,8 +3,8 @@ package dnsforward
 import (
 	"net/netip"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/client"
 	"github.com/AdguardTeam/dnsproxy/proxy"
+	"github.com/t3gemstone/AdGuardHome/internal/client"
 )
 
 // ClientsContainer provides information about preconfigured DNS clients.

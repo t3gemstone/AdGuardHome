@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghtest"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering/hashprefix"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/testutil"
@@ -17,6 +15,8 @@ import (
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtest"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering/hashprefix"
 )
 
 // testTimeout is a common timeout for tests.
@@ -700,7 +700,7 @@ func BenchmarkSafeBrowsing(b *testing.B) {
 	//
 	//	goos: darwin
 	//	goarch: arm64
-	//	pkg: github.com/AdguardTeam/AdGuardHome/internal/filtering
+	//	pkg: github.com/t3gemstone/AdGuardHome/internal/filtering
 	//	cpu: Apple M3
 	//	BenchmarkSafeBrowsing-8   	  846363	      1280 ns/op	    1424 B/op	      41 allocs/op
 }
@@ -726,7 +726,7 @@ func BenchmarkSafeBrowsing_parallel(b *testing.B) {
 	//
 	//	goos: darwin
 	//	goarch: arm64
-	//	pkg: github.com/AdguardTeam/AdGuardHome/internal/filtering
+	//	pkg: github.com/t3gemstone/AdGuardHome/internal/filtering
 	//	cpu: Apple M3
 	//	BenchmarkSafeBrowsing_parallel-8   	 1040792	      1076 ns/op	    1472 B/op	      43 allocs/op
 }

@@ -5,8 +5,8 @@ import (
 	"net/netip"
 	"slices"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering/rulelist"
 	"github.com/AdguardTeam/urlfilter/rules"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering/rulelist"
 )
 
 // Result contains the result of a request check.  All fields transitively have
@@ -113,7 +113,7 @@ const (
 	// TODO(a.garipov): Remove [Rewritten] and [RewrittenAutoHosts] by merging
 	// their functionality into RewrittenRule.
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/2499.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/2499.
 	RewrittenRule
 )
 

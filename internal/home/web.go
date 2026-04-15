@@ -12,9 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
-	"github.com/AdguardTeam/AdGuardHome/internal/updater"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil"
@@ -24,6 +21,9 @@ import (
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/NYTimes/gziphandler"
 	"github.com/quic-go/quic-go/http3"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/updater"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

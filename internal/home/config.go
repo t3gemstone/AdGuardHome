@@ -12,17 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghalg"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghtls"
-	"github.com/AdguardTeam/AdGuardHome/internal/configmigrate"
-	"github.com/AdguardTeam/AdGuardHome/internal/dhcpd"
-	"github.com/AdguardTeam/AdGuardHome/internal/dnsforward"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
-	"github.com/AdguardTeam/AdGuardHome/internal/querylog"
-	"github.com/AdguardTeam/AdGuardHome/internal/schedule"
-	"github.com/AdguardTeam/AdGuardHome/internal/stats"
 	"github.com/AdguardTeam/dnsproxy/fastip"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
@@ -30,6 +19,17 @@ import (
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/renameio/v2/maybe"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/aghalg"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
+	"github.com/t3gemstone/AdGuardHome/internal/configmigrate"
+	"github.com/t3gemstone/AdGuardHome/internal/dhcpd"
+	"github.com/t3gemstone/AdGuardHome/internal/dnsforward"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/t3gemstone/AdGuardHome/internal/querylog"
+	"github.com/t3gemstone/AdGuardHome/internal/schedule"
+	"github.com/t3gemstone/AdGuardHome/internal/stats"
 	yaml "go.yaml.in/yaml/v4"
 )
 
@@ -503,8 +503,8 @@ var config = &configuration{
 
 			// set default maximum concurrent queries to 300
 			// we introduced a default limit due to this:
-			// https://github.com/AdguardTeam/AdGuardHome/issues/2015#issuecomment-674041912
-			// was later increased to 300 due to https://github.com/AdguardTeam/AdGuardHome/issues/2257
+			// https://github.com/t3gemstone/AdGuardHome/issues/2015#issuecomment-674041912
+			// was later increased to 300 due to https://github.com/t3gemstone/AdGuardHome/issues/2257
 			MaxGoroutines: 300,
 		},
 		UpstreamTimeout:  timeutil.Duration(dnsforward.DefaultTimeout),

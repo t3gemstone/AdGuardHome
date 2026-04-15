@@ -4,9 +4,9 @@ import (
 	"net"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 )
 
 func TestIPMut(t *testing.T) {

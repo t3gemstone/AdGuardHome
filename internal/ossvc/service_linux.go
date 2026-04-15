@@ -11,9 +11,9 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/kardianos/service"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // chooseSystem checks the current system detected and substitutes it with local
@@ -26,8 +26,8 @@ func chooseSystem(ctx context.Context, l *slog.Logger, cmdCons executil.CommandC
 		// anything other, but the update-rc.d fix should not be applied on
 		// OpenWrt, so exclude it explicitly.
 		//
-		// See https://github.com/AdguardTeam/AdGuardHome/issues/4480 and
-		// https://github.com/AdguardTeam/AdGuardHome/issues/4677.
+		// See https://github.com/t3gemstone/AdGuardHome/issues/4480 and
+		// https://github.com/t3gemstone/AdGuardHome/issues/4677.
 		if !aghos.IsOpenWrt() {
 			service.ChooseSystem(&sysvSystem{System: sys, cmdCons: cmdCons})
 			l.DebugContext(ctx, "using custom SysV system")

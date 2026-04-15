@@ -5,8 +5,8 @@ package dhcpd
 import (
 	"net/http"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // jsonError is a generic JSON error response.

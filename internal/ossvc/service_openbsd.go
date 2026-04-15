@@ -16,11 +16,11 @@ import (
 	"syscall"
 	"text/template"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/ioutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/kardianos/service"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // OpenBSD Service Implementation

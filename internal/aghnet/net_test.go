@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 )
 
 // testTimeout is a common timeout for tests.

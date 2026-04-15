@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/testutil"
@@ -17,6 +16,7 @@ import (
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // Common constants for tests.
@@ -356,7 +356,7 @@ func BenchmarkAnonymizeIP(b *testing.B) {
 	//
 	//	goos: darwin
 	//	goarch: amd64
-	//	pkg: github.com/AdguardTeam/AdGuardHome/internal/querylog
+	//	pkg: github.com/t3gemstone/AdGuardHome/internal/querylog
 	//	cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
 	//	BenchmarkAnonymizeIP/v4-12              	426499675	         2.687 ns/op	       0 B/op	       0 allocs/op
 	//	BenchmarkAnonymizeIP/v4_slow-12         	510082938	         2.412 ns/op	       0 B/op	       0 allocs/op

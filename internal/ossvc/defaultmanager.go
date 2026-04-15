@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/kardianos/service"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // TODO(e.burkov):  Declare managers for each OS.

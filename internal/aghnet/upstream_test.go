@@ -3,8 +3,8 @@ package aghnet_test
 import (
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 )
 
 func TestIsCommentOrEmpty(t *testing.T) {

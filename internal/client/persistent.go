@@ -10,13 +10,13 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghslog"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/dnsproxy/upstream"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/google/uuid"
+	"github.com/t3gemstone/AdGuardHome/internal/aghslog"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // UID is the type for the unique IDs of persistent clients.

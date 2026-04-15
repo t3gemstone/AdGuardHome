@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/syncutil"
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 )
 
 // type check

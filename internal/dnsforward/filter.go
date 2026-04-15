@@ -8,9 +8,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/urlfilter/rules"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // clientRequestFilteringSettings looks up client filtering settings using the

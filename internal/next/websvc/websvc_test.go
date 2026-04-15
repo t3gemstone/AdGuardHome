@@ -12,9 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/next/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/dnssvc"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/websvc"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil/httputil"
 	"github.com/AdguardTeam/golibs/netutil/urlutil"
@@ -22,6 +19,9 @@ import (
 	"github.com/AdguardTeam/golibs/testutil/fakeio/fakefs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/next/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/next/dnssvc"
+	"github.com/t3gemstone/AdGuardHome/internal/next/websvc"
 )
 
 // testTimeout is the common timeout for tests.

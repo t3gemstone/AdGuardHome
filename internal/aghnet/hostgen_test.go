@@ -4,8 +4,8 @@ import (
 	"net/netip"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 )
 
 func TestGenerateHostName(t *testing.T) {

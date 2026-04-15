@@ -9,11 +9,11 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
 )
 
 const arpAOutputWrt = `

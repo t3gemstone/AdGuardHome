@@ -6,12 +6,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
-	"github.com/AdguardTeam/AdGuardHome/internal/querylog"
-	"github.com/AdguardTeam/AdGuardHome/internal/stats"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/t3gemstone/AdGuardHome/internal/querylog"
+	"github.com/t3gemstone/AdGuardHome/internal/stats"
 )
 
 // processQueryLogsAndStats writes stats data and logs.  l and dctx must not be

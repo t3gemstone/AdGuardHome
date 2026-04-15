@@ -5,11 +5,11 @@ import (
 	"path"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 func TestDNSFilter_CheckHostRules_dnsrewrite(t *testing.T) {

@@ -15,14 +15,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/dnssvc"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/websvc"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/google/renameio/v2/maybe"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/next/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/next/dnssvc"
+	"github.com/t3gemstone/AdGuardHome/internal/next/websvc"
 	yaml "go.yaml.in/yaml/v4"
 )
 

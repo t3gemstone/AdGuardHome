@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/next/jsonpatch"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/next/jsonpatch"
 )
 
 func TestNonRemovable(t *testing.T) {

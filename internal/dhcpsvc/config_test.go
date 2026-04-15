@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/dhcpsvc"
 	"github.com/AdguardTeam/golibs/testutil"
+	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
 )
 
 // TODO(e.burkov):  Move string IP address representations into constants and

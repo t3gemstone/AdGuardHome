@@ -6,10 +6,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // logEntry represents a single entry in the file.

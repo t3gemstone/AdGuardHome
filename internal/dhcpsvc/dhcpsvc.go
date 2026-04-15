@@ -8,7 +8,7 @@ import (
 	"net"
 	"net/netip"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/next/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/next/agh"
 )
 
 const (

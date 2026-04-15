@@ -13,12 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghnet"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghslog"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghtls"
-	"github.com/AdguardTeam/AdGuardHome/internal/client"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/dnsproxy/ratelimit"
 	"github.com/AdguardTeam/dnsproxy/upstream"
@@ -30,6 +24,12 @@ import (
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/AdguardTeam/golibs/validate"
 	"github.com/ameshkov/dnscrypt/v2"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/aghslog"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
+	"github.com/t3gemstone/AdGuardHome/internal/client"
 )
 
 // Config represents the DNS filtering configuration of AdGuard Home.  The zero
@@ -843,7 +843,7 @@ func (s *Server) UpdatedProtectionStatus(
 	// relatively rare situation, do not lock s.serverLock for writing, as that
 	// can lead to freezes.
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/5661.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/5661.
 	if s.protectionUpdateInProgress.CompareAndSwap(false, true) {
 		go s.enableProtectionAfterPause(ctx)
 	}

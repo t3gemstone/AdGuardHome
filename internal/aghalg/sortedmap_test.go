@@ -3,8 +3,8 @@ package aghalg_test
 import (
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghalg"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghalg"
 )
 
 func TestNewSortedMap(t *testing.T) {

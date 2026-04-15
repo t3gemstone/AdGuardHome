@@ -16,12 +16,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/osutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/c2h5oh/datasize"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // TODO(e.burkov):  Remove the default as they should be set by configuration.

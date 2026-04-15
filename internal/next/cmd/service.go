@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/next/configmgr"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/service"
 	"github.com/google/renameio/v2/maybe"
+	"github.com/t3gemstone/AdGuardHome/internal/next/configmgr"
 )
 
 // serviceMgr manages AdGuard Home services.

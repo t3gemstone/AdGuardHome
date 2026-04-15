@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/updater"
-	"github.com/AdguardTeam/AdGuardHome/internal/version"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/updater"
+	"github.com/t3gemstone/AdGuardHome/internal/version"
 )
 
 // testTimeout is the common timeout for tests.
@@ -34,7 +34,7 @@ func TestUpdater_Update(t *testing.T) {
 	const jsonData = `{
   "version": "v0.103.0-beta.2",
   "announcement": "AdGuard Home v0.103.0-beta.2 is now available!",
-  "announcement_url": "https://github.com/AdguardTeam/AdGuardHome/internal/releases",
+  "announcement_url": "https://github.com/t3gemstone/AdGuardHome/internal/releases",
   "selfupdate_min_version": "v0.0",
   "download_linux_amd64": "%s"
 }`

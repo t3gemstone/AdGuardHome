@@ -13,8 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering/rulelist"
 	"github.com/AdguardTeam/golibs/cache"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/urlfilter"
@@ -22,6 +20,8 @@ import (
 	"github.com/AdguardTeam/urlfilter/rules"
 	"github.com/c2h5oh/datasize"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering/rulelist"
 )
 
 // Attribute keys and values for logging.

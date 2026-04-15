@@ -7,12 +7,12 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/AdguardTeam/golibs/testutil/fakeio/fakefs"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
 )
 
 func TestIfaceHasStaticIP(t *testing.T) {

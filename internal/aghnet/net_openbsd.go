@@ -10,9 +10,9 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/osutil/executil"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 func ifaceHasStaticIP(

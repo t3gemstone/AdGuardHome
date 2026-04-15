@@ -3,10 +3,10 @@ package ossvc_test
 import (
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/ossvc"
 	"github.com/kardianos/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t3gemstone/AdGuardHome/internal/ossvc"
 )
 
 func TestConfigureServiceOptions(t *testing.T) {

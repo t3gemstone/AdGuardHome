@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // type check

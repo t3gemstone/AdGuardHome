@@ -19,10 +19,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/agh"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
-	"github.com/AdguardTeam/AdGuardHome/internal/filtering/rulelist"
 	"github.com/AdguardTeam/golibs/container"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/hostsfile"
@@ -33,6 +29,10 @@ import (
 	"github.com/AdguardTeam/urlfilter/filterlist"
 	"github.com/AdguardTeam/urlfilter/rules"
 	"github.com/miekg/dns"
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering/rulelist"
 )
 
 // ServiceEntry - blocked service array element
@@ -588,7 +588,7 @@ func (d *DNSFilter) handleRewriteLoop(
 		} else if host == rwAns && isWildcard(rwPat) {
 			// An "*.example.com → sub.example.com" rewrite matching in a loop.
 			//
-			// See https://github.com/AdguardTeam/AdGuardHome/issues/4016.
+			// See https://github.com/t3gemstone/AdGuardHome/issues/4016.
 
 			res.CanonName = host
 

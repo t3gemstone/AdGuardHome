@@ -11,12 +11,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/client"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/httphdr"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil/urlutil"
 	"github.com/google/uuid"
+	"github.com/t3gemstone/AdGuardHome/internal/client"
 	"howett.net/plist"
 )
 
@@ -40,7 +40,7 @@ type dnsSettings struct {
 	//
 	// TODO(a.garipov): Allow users to set this.
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/3607.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/3607.
 	ServerAddresses []net.IP `plist:",omitempty"`
 }
 

@@ -3,8 +3,8 @@
 package ossvc
 
 import (
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/kardianos/service"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 // configureServiceOptions defines additional settings of the service
@@ -170,7 +170,7 @@ exit 0
 `
 
 // OpenWrt procd init script
-// https://github.com/AdguardTeam/AdGuardHome/internal/issues/1386
+// https://github.com/t3gemstone/AdGuardHome/internal/issues/1386
 const openWrtScript = `#!/bin/sh /etc/rc.common
 
 USE_PROCD=1

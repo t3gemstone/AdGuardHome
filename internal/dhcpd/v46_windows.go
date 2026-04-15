@@ -9,7 +9,7 @@ import (
 	"net"
 	"net/netip"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/dhcpsvc"
+	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
 )
 
 type winServer struct{}

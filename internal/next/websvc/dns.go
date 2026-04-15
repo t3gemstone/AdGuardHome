@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"net/netip"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghhttp"
-	"github.com/AdguardTeam/AdGuardHome/internal/next/jsonpatch"
 	"github.com/AdguardTeam/dnsproxy/proxy"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/next/jsonpatch"
 )
 
 // ReqPatchSettingsDNS describes the request to the PATCH /api/v1/settings/dns

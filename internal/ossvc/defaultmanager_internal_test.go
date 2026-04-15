@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/aghos"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/osutil/executil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/kardianos/service"
 	"github.com/stretchr/testify/assert"
+	"github.com/t3gemstone/AdGuardHome/internal/aghos"
 )
 
 func TestManager_Status(t *testing.T) {
