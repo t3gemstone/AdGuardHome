@@ -16,9 +16,9 @@
 #
 # See https://unix.stackexchange.com/q/646255/105635.
 GO.MACRO = $${GO:-go}
-VERBOSE.MACRO = $${VERBOSE:-0}
+VERBOSE.MACRO = $${VERBOSE:-1}
 
-CHANNEL = development
+CHANNEL = release
 CLIENT_DIR = client
 DEPLOY_SCRIPT_PATH = not/a/real/path
 DIST_DIR = dist
@@ -35,7 +35,7 @@ RACE = 0
 REVISION = $${REVISION:-$$(git rev-parse --short HEAD)}
 SIGN = 0
 SIGNER_API_KEY = not-a-real-key
-VERSION = v0.0.0
+VERSION = v0.108.0
 
 NEXTAPI = 0
 

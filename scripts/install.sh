@@ -385,7 +385,7 @@ configure() {
 	check_out_dir
 
 	pkg_name="AdGuardHome_${os}_${cpu}.${pkg_ext}"
-	url="https://github.com/t3gemstone/AdGuardHome/releases/download/${latest_version}/${pkg_name}"
+	url="https://github.com/t3gemstone/AdGuardHome/releases/download/${version}/${pkg_name}"
 	agh_dir="${out_dir}/AdGuardHome"
 	readonly pkg_name url agh_dir
 
@@ -569,7 +569,7 @@ install_service() {
 
 # Set default values of configuration variables.
 channel='release'
-latest_version='v0.107.73'
+version='v0.108.0'
 reinstall='0'
 uninstall='0'
 verbose='0'
