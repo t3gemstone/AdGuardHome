@@ -284,7 +284,7 @@ set_cpu() {
 #
 # TODO(a.garipov): Remove after the final v0.107.0 release.
 #
-# See https://github.com/t3gemstone/AdGuardHome/issues/2443.
+# See https://github.com/AdguardTeam/AdGuardHome/issues/2443.
 fix_darwin() {
 	if [ "$os" != 'darwin' ]; then
 		return 0
@@ -385,11 +385,12 @@ configure() {
 	check_out_dir
 
 	pkg_name="AdGuardHome_${os}_${cpu}.${pkg_ext}"
-	url="https://static.adtidy.org/adguardhome/${channel}/${pkg_name}"
+	url="https://github.com/t3gemstone/AdGuardHome/releases/download/${latest_version}/${pkg_name}"
 	agh_dir="${out_dir}/AdGuardHome"
 	readonly pkg_name url agh_dir
 
-	log "AdGuard Home will be installed into $agh_dir"
+	log "AdGuard Home ($url) will be installed into $agh_dir"
+    exit 0
 }
 
 # Function is_root checks for root privileges to be granted.
@@ -551,7 +552,7 @@ install_service() {
 	# Some devices detected to have armv7 CPU face the compatibility issues with
 	# actual armv7 builds.  We should try to install the armv5 binary instead.
 	#
-	# See https://github.com/t3gemstone/AdGuardHome/issues/2542.
+	# See https://github.com/AdguardTeam/AdGuardHome/issues/2542.
 	if [ "$cpu" = 'armv7' ]; then
 		cpu='armv5'
 		reinstall='1'
@@ -568,6 +569,7 @@ install_service() {
 
 # Set default values of configuration variables.
 channel='release'
+latest_version='v0.107.73'
 reinstall='0'
 uninstall='0'
 verbose='0'

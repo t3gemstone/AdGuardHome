@@ -440,7 +440,7 @@ func hostFromPTR(
 		// Respect zero TTL records since some DNS servers use it to
 		// locally-resolved addresses.
 		//
-		// See https://github.com/t3gemstone/AdGuardHome/issues/6046.
+		// See https://github.com/AdguardTeam/AdGuardHome/issues/6046.
 		if ptr.Hdr.Ttl >= ttlSec {
 			host = ptr.Ptr
 			ttlSec = ptr.Hdr.Ttl
@@ -834,7 +834,7 @@ const srvClosedErr errors.Error = "server is closed"
 // proxy returns a pointer to the current DNS proxy instance.  If p is nil, the
 // server is closing.
 //
-// See https://github.com/t3gemstone/AdGuardHome/issues/3655.
+// See https://github.com/AdguardTeam/AdGuardHome/issues/3655.
 func (s *Server) proxy() (p *proxy.Proxy) {
 	s.serverLock.RLock()
 	defer s.serverLock.RUnlock()

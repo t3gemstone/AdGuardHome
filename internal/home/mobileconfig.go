@@ -40,7 +40,7 @@ type dnsSettings struct {
 	//
 	// TODO(a.garipov): Allow users to set this.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/3607.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/3607.
 	ServerAddresses []net.IP `plist:",omitempty"`
 }
 

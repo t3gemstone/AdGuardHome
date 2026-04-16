@@ -195,7 +195,7 @@ Essentially, any advertising that shares a domain with content cannot be blocked
 Is there a chance to handle this in the future?  DNS will never be enough to do this. Our only option is to use a content blocking proxy like what we do in the standalone AdGuard applications. We're [going to bring][issue-1228] this feature support to AdGuard Home in the future. Unfortunately, even in this case, there still will be cases when this won't be enough or would require quite a complicated configuration.
 
 [blog-adaway]: https://adguard.com/blog/adguard-vs-adaway-dns66.html
-[issue-1228]:  https://github.com/t3gemstone/AdGuardHome/issues/1228
+[issue-1228]:  https://github.com/AdguardTeam/AdGuardHome/issues/1228
 
 ## <a href="#how-to-build" id="how-to-build" name="how-to-build">How to build from source</a>
 
@@ -349,7 +349,7 @@ There are three options how you can install an unstable version:
 
 If you run into any problem or have a suggestion, head to [this page][iss] and click on the “New issue” button. Please follow the instructions in the issue form carefully and don't forget to start by searching for duplicates.
 
-[iss]: https://github.com/t3gemstone/AdGuardHome/issues
+[iss]: https://github.com/AdguardTeam/AdGuardHome/issues
 
 ### <a href="#translate" id="translate" name="translate">Help with translations</a>
 
@@ -362,7 +362,7 @@ If you want to help with AdGuard Home translations, please learn more about tran
 
 Another way you can contribute is by [looking for issues][iss-help] marked as `help wanted`, asking if the issue is up for grabs, and sending a PR fixing the bug or implementing the feature.
 
-[iss-help]: https://github.com/t3gemstone/AdGuardHome/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22
+[iss-help]: https://github.com/AdguardTeam/AdGuardHome/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22
 
 ## <a href="#uses" id="uses" name="uses">Projects that use AdGuard Home</a>
 

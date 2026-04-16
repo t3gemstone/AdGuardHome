@@ -588,7 +588,7 @@ func (d *DNSFilter) handleRewriteLoop(
 		} else if host == rwAns && isWildcard(rwPat) {
 			// An "*.example.com → sub.example.com" rewrite matching in a loop.
 			//
-			// See https://github.com/t3gemstone/AdGuardHome/issues/4016.
+			// See https://github.com/AdguardTeam/AdGuardHome/issues/4016.
 
 			res.CanonName = host
 

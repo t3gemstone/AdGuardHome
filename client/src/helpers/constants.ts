@@ -62,7 +62,7 @@ export const STATUS_COLORS = {
 export const REPOSITORY = {
     URL: 'https://github.com/t3gemstone/AdGuardHome',
     TRACKERS_DB: 'https://github.com/t3gemstone/AdGuardHome/tree/master/client/src/helpers/trackers/trackers.json',
-    ISSUES: 'https://github.com/t3gemstone/AdGuardHome/issues/new/choose',
+    ISSUES: 'https://github.com/AdguardTeam/AdGuardHome/issues/new/choose',
 };
 
 export const CLIENT_ID_LINK = 'https://github.com/t3gemstone/AdGuardHome/wiki/Clients#clientid';

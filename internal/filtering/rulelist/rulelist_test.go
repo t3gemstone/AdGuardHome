@@ -39,7 +39,7 @@ const (
 
 	// testRuleTextCosmetic is a cosmetic rule with a zero-width non-joiner.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/6003.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/6003.
 	testRuleTextCosmetic = "||cosmetic.example## :has-text(/\u200c/i)\n"
 )
 

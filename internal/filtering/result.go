@@ -113,7 +113,7 @@ const (
 	// TODO(a.garipov): Remove [Rewritten] and [RewrittenAutoHosts] by merging
 	// their functionality into RewrittenRule.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/2499.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/2499.
 	RewrittenRule
 )
 

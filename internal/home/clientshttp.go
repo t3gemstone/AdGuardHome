@@ -589,7 +589,7 @@ func (clients *clientsContainer) findRuntime(
 	// runtime client associated with the IP address was stored previously, but
 	// then the server was reloaded.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/2428.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/2428.
 	disallowed, rule := clients.clientChecker.IsBlockedClient(ip, string(params.ClientID))
 
 	var disallowedRule *string

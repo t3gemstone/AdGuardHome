@@ -843,7 +843,7 @@ func (s *Server) UpdatedProtectionStatus(
 	// relatively rare situation, do not lock s.serverLock for writing, as that
 	// can lead to freezes.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/5661.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/5661.
 	if s.protectionUpdateInProgress.CompareAndSwap(false, true) {
 		go s.enableProtectionAfterPause(ctx)
 	}

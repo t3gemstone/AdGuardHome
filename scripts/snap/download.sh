@@ -11,8 +11,11 @@ set -e -f -u
 channel="${CHANNEL:?please set CHANNEL}"
 readonly channel
 
+version="${VERSION:?please set VERSION}"
+readonly version
+
 while read -r arch snap_arch; do
-	release_url="https://static.adtidy.org/adguardhome/${channel}/AdGuardHome_linux_${arch}.tar.gz"
+	release_url="https://github.com/t3gemstone/AdGuardHome/releases/download/${version}/AdGuardHome_linux_${arch}.tar.gz"
 	output="./AdGuardHome_linux_${arch}.tar.gz"
 
 	curl -o "$output" -v "$release_url"

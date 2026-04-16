@@ -330,7 +330,7 @@ echo "version=$version" >"./${dist}/version.txt"
 
 # Create the version.json file.
 
-version_download_url="https://static.adtidy.org/adguardhome/${channel}"
+version_download_url="https://github.com/t3gemstone/AdGuardHome/releases/download/${version}"
 version_json="./${dist}/version.json"
 readonly version_download_url version_json
 

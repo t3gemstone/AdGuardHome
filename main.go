@@ -6,7 +6,7 @@ import (
 	"embed"
 	// Embed tzdata in binary.
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/6758
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/6758
 	_ "time/tzdata"
 
 	"github.com/t3gemstone/AdGuardHome/internal/home"

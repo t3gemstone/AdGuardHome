@@ -120,7 +120,7 @@ func (web *webAPI) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// The real IP address of the client [realIP] cannot be used here without
 	// taking trusted proxies into account due to security issues:
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/2799.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/2799.
 	if remoteIPStr, err = netutil.SplitHost(r.RemoteAddr); err != nil {
 		web.writeErrorWithIP(
 			ctx,
@@ -567,7 +567,7 @@ func (mw *authMiddlewareDefault) userFromRequestBasicAuth(
 	// The real IP address of the client [realIP] cannot be used here without
 	// taking trusted proxies into account due to security issues:
 	//
-	// See https://github.com/t3gemstone/AdGuardHome/issues/2799.
+	// See https://github.com/AdguardTeam/AdGuardHome/issues/2799.
 	if remoteIP, err = netutil.SplitHost(r.RemoteAddr); err != nil {
 		return nil, fmt.Errorf("getting remote address: %w", err)
 	}
