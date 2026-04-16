@@ -390,7 +390,6 @@ configure() {
 	readonly pkg_name url agh_dir
 
 	log "AdGuard Home ($url) will be installed into $agh_dir"
-    exit 0
 }
 
 # Function is_root checks for root privileges to be granted.
