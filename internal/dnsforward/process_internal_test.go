@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"net"
 	"net/netip"
 	"testing"
@@ -76,19 +77,20 @@ func TestServer_ProcessInitial(t *testing.T) {
 			t.Parallel()
 
 			c := ServerConfig{
-				TLSConf: &TLSConfig{},
-				Config: Config{
-					AAAADisabled:     tc.aaaaDisabled,
-					UpstreamMode:     UpstreamModeLoadBalance,
-					EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
-					ClientsContainer: EmptyClientsContainer{},
-				},
-				ServePlainDNS: true,
+				TLSConf:          &TLSConfig{},
+				AAAADisabled:     tc.aaaaDisabled,
+				UpstreamMode:     proxy.UpstreamModeLoadBalance,
+				EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
+				ClientsContainer: EmptyClientsContainer{},
+				ServePlainDNS:    true,
 			}
 
-			s := createTestServer(t, &filtering.Config{
-				BlockingMode: filtering.BlockingModeDefault,
-			}, c)
+			s := createTestServer(
+				t,
+				&filtering.Config{BlockingMode: filtering.BlockingModeDefault},
+				c,
+				testTLSManager,
+			)
 
 			var gotAddr netip.Addr
 			s.addrProc = &aghtest.AddressProcessor{
@@ -177,19 +179,20 @@ func TestServer_ProcessFilteringAfterResponse(t *testing.T) {
 			t.Parallel()
 
 			c := ServerConfig{
-				TLSConf: &TLSConfig{},
-				Config: Config{
-					AAAADisabled:     tc.aaaaDisabled,
-					UpstreamMode:     UpstreamModeLoadBalance,
-					EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
-					ClientsContainer: EmptyClientsContainer{},
-				},
-				ServePlainDNS: true,
+				TLSConf:          &TLSConfig{},
+				AAAADisabled:     tc.aaaaDisabled,
+				UpstreamMode:     proxy.UpstreamModeLoadBalance,
+				EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
+				ClientsContainer: EmptyClientsContainer{},
+				ServePlainDNS:    true,
 			}
 
-			s := createTestServer(t, &filtering.Config{
-				BlockingMode: filtering.BlockingModeDefault,
-			}, c)
+			s := createTestServer(
+				t,
+				&filtering.Config{BlockingMode: filtering.BlockingModeDefault},
+				c,
+				testTLSManager,
+			)
 
 			resp := newResp(dns.RcodeSuccess, tc.req, tc.respAns)
 			dctx := &dnsContext{
@@ -318,35 +321,46 @@ func TestServer_ProcessDDRQuery(t *testing.T) {
 		ddrEnabled: true,
 		addrsDoT:   addrsDoT,
 		addrsDoH:   addrsDoH,
+	}, {
+		name:       "dot_doq_no_doh",
+		wantRes:    resultCodeFinish,
+		want:       []*dns.SVCB{dotSVCB, doqSVCB},
+		host:       ddrHostFQDN,
+		qtype:      dns.TypeSVCB,
+		ddrEnabled: true,
+		addrsDoT:   addrsDoT,
+		addrsDoQ:   addrsDoQ,
 	}}
 
-	_, certPem, keyPem := createServerTLSConfig(t)
-	cert, err := tls.X509KeyPair(certPem, keyPem)
-	require.NoError(t, err)
+	tlsConf, _, _ := createServerTLSConfig(t)
+
+	tlsManager := &aghtest.Manager{}
+	tlsManager.OnTLSConfig = func() (conf *tls.Config) { return tlsConf }
+	tlsManager.OnHasIPAddrs = func() (ok bool) { return true }
+	tlsManager.OnRootCAs = func() (cert *x509.CertPool) { return tlsConf.RootCAs }
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			s := createTestServer(t, &filtering.Config{
-				BlockingMode: filtering.BlockingModeDefault,
-			}, ServerConfig{
-				Config: Config{
+			s := createTestServer(
+				t,
+				&filtering.Config{
+					BlockingMode: filtering.BlockingModeDefault,
+				},
+				ServerConfig{
 					HandleDDR:        tc.ddrEnabled,
-					UpstreamMode:     UpstreamModeLoadBalance,
+					UpstreamMode:     proxy.UpstreamModeLoadBalance,
 					EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
 					ClientsContainer: EmptyClientsContainer{},
+					TLSConf: &TLSConfig{
+						ServerName:       ddrTestDomainName,
+						TLSListenAddrs:   tc.addrsDoT,
+						HTTPSListenAddrs: tc.addrsDoH,
+						QUICListenAddrs:  tc.addrsDoQ,
+					},
+					ServePlainDNS: true,
 				},
-				TLSConf: &TLSConfig{
-					ServerName:       ddrTestDomainName,
-					Cert:             &cert,
-					TLSListenAddrs:   tc.addrsDoT,
-					HTTPSListenAddrs: tc.addrsDoH,
-					QUICListenAddrs:  tc.addrsDoQ,
-				},
-				ServePlainDNS: true,
-			})
-			// TODO(e.burkov):  Generate a certificate actually containing the
-			// IP addresses.
-			s.hasIPAddrs = true
+				tlsManager,
+			)
 
 			req := createTestMessageWithType(tc.host, tc.qtype)
 
@@ -447,9 +461,7 @@ func TestServer_ProcessDHCPHosts_localRestriction(t *testing.T) {
 			}
 
 			req := &dns.Msg{
-				MsgHdr: dns.MsgHdr{
-					Id: dns.Id(),
-				},
+				Id: dns.Id(),
 				Question: []dns.Question{{
 					Name:   dns.Fqdn(tc.host),
 					Qtype:  dns.TypeA,
@@ -671,18 +683,17 @@ func TestServer_ProcessUpstream_localPTR(t *testing.T) {
 				BlockingMode: filtering.BlockingModeDefault,
 			},
 			ServerConfig{
-				UDPListenAddrs: []*net.UDPAddr{{}},
-				TCPListenAddrs: []*net.TCPAddr{{}},
-				TLSConf:        &TLSConfig{},
-				Config: Config{
-					UpstreamMode:     UpstreamModeLoadBalance,
-					EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
-					ClientsContainer: EmptyClientsContainer{},
-				},
+				UDPListenAddrs:    []*net.UDPAddr{{}},
+				TCPListenAddrs:    []*net.TCPAddr{{}},
+				TLSConf:           &TLSConfig{},
+				UpstreamMode:      proxy.UpstreamModeLoadBalance,
+				EDNSClientSubnet:  &EDNSClientSubnet{Enabled: false},
+				ClientsContainer:  EmptyClientsContainer{},
 				UsePrivateRDNS:    true,
 				LocalPTRResolvers: []string{localUpsAddr},
 				ServePlainDNS:     true,
 			},
+			testTLSManager,
 		)
 		ctx := testutil.ContextWithTimeout(t, testTimeout)
 		pctx := newPrxCtx()
@@ -701,18 +712,17 @@ func TestServer_ProcessUpstream_localPTR(t *testing.T) {
 				BlockingMode: filtering.BlockingModeDefault,
 			},
 			ServerConfig{
-				UDPListenAddrs: []*net.UDPAddr{{}},
-				TCPListenAddrs: []*net.TCPAddr{{}},
-				TLSConf:        &TLSConfig{},
-				Config: Config{
-					UpstreamMode:     UpstreamModeLoadBalance,
-					EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
-					ClientsContainer: EmptyClientsContainer{},
-				},
+				UDPListenAddrs:    []*net.UDPAddr{{}},
+				TCPListenAddrs:    []*net.TCPAddr{{}},
+				TLSConf:           &TLSConfig{},
+				UpstreamMode:      proxy.UpstreamModeLoadBalance,
+				EDNSClientSubnet:  &EDNSClientSubnet{Enabled: false},
+				ClientsContainer:  EmptyClientsContainer{},
 				UsePrivateRDNS:    false,
 				LocalPTRResolvers: []string{localUpsAddr},
 				ServePlainDNS:     true,
 			},
+			testTLSManager,
 		)
 		pctx := newPrxCtx()
 

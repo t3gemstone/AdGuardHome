@@ -177,13 +177,13 @@ func (s *Server) getDNSConfig(ctx context.Context) (c *jsonDNSConfig) {
 
 	var upstreamMode jsonUpstreamMode
 	switch s.conf.UpstreamMode {
-	case UpstreamModeLoadBalance:
-		// TODO(d.kolyshev): Support jsonUpstreamModeLoadBalance on frontend instead
-		// of jsonUpstreamModeEmpty.
+	case proxy.UpstreamModeLoadBalance:
+		// TODO(d.kolyshev): Support jsonUpstreamModeLoadBalance on frontend
+		// instead of jsonUpstreamModeEmpty.
 		upstreamMode = jsonUpstreamModeEmpty
-	case UpstreamModeParallel:
+	case proxy.UpstreamModeParallel:
 		upstreamMode = jsonUpstreamModeParallel
-	case UpstreamModeFastestAddr:
+	case proxy.UpstreamModeFastestAddr:
 		upstreamMode = jsonUpstreamModeFastestAddr
 	}
 
@@ -342,8 +342,8 @@ func (req *jsonDNSConfig) checkBootstrap() (err error) {
 	defer func() { err = errors.Annotate(err, "checking bootstrap %s: %w", b) }()
 
 	for _, b = range *req.Bootstraps {
-		if b == "" {
-			return errors.Error("empty")
+		if aghnet.IsCommentOrEmpty(b) {
+			continue
 		}
 
 		var resolver *upstream.UpstreamResolver
@@ -391,7 +391,8 @@ func (req *jsonDNSConfig) checkPrivateRDNS(
 		privateNets,
 		&upstream.Options{
 			Logger: slogutil.NewDiscardLogger(),
-		})
+		},
+	)
 	err = errors.WithDeferred(err, uc.Close())
 	if err != nil {
 		return fmt.Errorf("private upstream servers: %w", err)
@@ -617,14 +618,14 @@ func (s *Server) setConfig(dc *jsonDNSConfig) (shouldRestart bool) {
 
 // mustParseUpstreamMode returns an upstream mode parsed from jsonUpstreamMode.
 // Panics in case of invalid value.
-func mustParseUpstreamMode(mode jsonUpstreamMode) (um UpstreamMode) {
+func mustParseUpstreamMode(mode jsonUpstreamMode) (um proxy.UpstreamMode) {
 	switch mode {
 	case jsonUpstreamModeEmpty, jsonUpstreamModeLoadBalance:
-		return UpstreamModeLoadBalance
+		return proxy.UpstreamModeLoadBalance
 	case jsonUpstreamModeParallel:
-		return UpstreamModeParallel
+		return proxy.UpstreamModeParallel
 	case jsonUpstreamModeFastestAddr:
-		return UpstreamModeFastestAddr
+		return proxy.UpstreamModeFastestAddr
 	default:
 		// Should never happen, since the value should be validated.
 		panic(fmt.Errorf("unexpected upstream mode: %q", mode))
@@ -728,8 +729,6 @@ func (s *Server) handleTestUpstreamDNS(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	req.BootstrapDNS = stringutil.FilterOut(req.BootstrapDNS, aghnet.IsCommentOrEmpty)
 
 	opts := &upstream.Options{
 		Logger:     aghslog.NewForUpstream(s.baseLogger, aghslog.UpstreamTypeTest),

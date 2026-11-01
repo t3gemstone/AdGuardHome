@@ -284,7 +284,7 @@ set_cpu() {
 #
 # TODO(a.garipov): Remove after the final v0.107.0 release.
 #
-# See https://github.com/AdguardTeam/AdGuardHome/issues/2443.
+# See https://github.com/t3gemstone/AdGuardHome/issues/2443.
 fix_darwin() {
 	if [ "$os" != 'darwin' ]; then
 		return 0
@@ -551,7 +551,7 @@ install_service() {
 	# Some devices detected to have armv7 CPU face the compatibility issues with
 	# actual armv7 builds.  We should try to install the armv5 binary instead.
 	#
-	# See https://github.com/AdguardTeam/AdGuardHome/issues/2542.
+	# See https://github.com/t3gemstone/AdGuardHome/issues/2542.
 	if [ "$cpu" = 'armv7' ]; then
 		cpu='armv5'
 		reinstall='1'

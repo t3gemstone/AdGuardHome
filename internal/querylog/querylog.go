@@ -8,14 +8,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/agh"
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/configmgr"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/golibs/container"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/service"
 	"github.com/miekg/dns"
-	"github.com/t3gemstone/AdGuardHome/internal/agh"
-	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
-	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
-	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // QueryLog is the query log interface for use by other packages.
@@ -26,8 +27,9 @@ type QueryLog interface {
 	// Add adds a log entry.
 	Add(params *AddParams)
 
-	// WriteDiskConfig writes the query log configuration to c.
-	WriteDiskConfig(c *Config)
+	// WriteDiskConfig writes the query log configuration to the given confs, dc
+	// and dnsConf must not be nil.
+	WriteDiskConfig(dc *configmgr.QueryLogConfig, dnsConf *configmgr.DNSConfig)
 
 	// ShouldLog returns true if request for the host should be logged.
 	ShouldLog(host string, qType, qClass uint16, ids []string) bool

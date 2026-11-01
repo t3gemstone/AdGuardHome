@@ -10,14 +10,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
+	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/stringutil"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/insomniacslk/dhcp/dhcpv4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
-	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
 )
 
 var (
@@ -48,7 +49,7 @@ func defaultSrv(tb testing.TB) (s DHCPServer) {
 	tb.Helper()
 
 	var err error
-	s, err = v4Create(defaultV4ServerConf())
+	s, err = newV4Server(defaultV4ServerConf())
 	require.NoError(tb, err)
 
 	return s
@@ -83,7 +84,7 @@ func TestV4Server_leasing(t *testing.T) {
 				IP:       anotherIP,
 				IsStatic: true,
 			})
-			assert.ErrorIs(t, err, ErrDupHostname)
+			assert.ErrorIs(t, err, errors.ErrDuplicated)
 		})
 
 		t.Run("same_mac", func(t *testing.T) {
@@ -352,7 +353,7 @@ func TestV4Server_handle_optionsPriority(t *testing.T) {
 		}
 
 		var err error
-		s, err = v4Create(conf)
+		s, err = newV4Server(conf)
 		require.NoError(t, err)
 
 		s.conf.dnsIPAddrs = []netip.Addr{defaultIP}
@@ -484,7 +485,7 @@ func TestV4Server_updateOptions(t *testing.T) {
 		conf := defaultV4ServerConf()
 		conf.Options = tc.confOpts
 
-		s, err := v4Create(conf)
+		s, err := newV4Server(conf)
 		require.NoError(t, err)
 		require.IsType(t, (*v4Server)(nil), s)
 
@@ -603,7 +604,7 @@ func TestV4DynamicLease_Get(t *testing.T) {
 		"82 ip 1.2.3.4",
 	}
 
-	s, err := v4Create(conf)
+	s, err := newV4Server(conf)
 	require.NoError(t, err)
 
 	s.conf.dnsIPAddrs = []netip.Addr{netip.MustParseAddr("192.168.10.1")}
@@ -913,4 +914,72 @@ func TestV4Server_handleRelease(t *testing.T) {
 	}
 
 	require.Equal(t, wantResp, resp)
+}
+
+func TestV4Server_validateStaticLease_emptyHostname(t *testing.T) {
+	t.Parallel()
+
+	const (
+		existingHostname = "existing-client"
+	)
+
+	existingIP := netip.MustParseAddr("192.168.10.150")
+	nonExistingIP := existingIP.Next()
+	existingMAC := net.HardwareAddr{0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA}
+	otherMAC := net.HardwareAddr{0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB}
+
+	s := defaultSrv(t)
+
+	s4, ok := s.(*v4Server)
+	require.True(t, ok)
+
+	existingLease := &dhcpsvc.Lease{
+		Hostname: existingHostname,
+		HWAddr:   existingMAC,
+		IP:       existingIP,
+		IsStatic: true,
+	}
+	err := s4.addLease(existingLease)
+	require.NoError(t, err)
+
+	testCases := []struct {
+		name    string
+		wantErr string
+		lease   *dhcpsvc.Lease
+	}{{
+		name: "empty_hostname_allowed",
+		lease: &dhcpsvc.Lease{
+			Hostname: "",
+			HWAddr:   otherMAC,
+			IP:       nonExistingIP,
+			IsStatic: true,
+		},
+	}, {
+		name:    "non_empty_hostname_duplicate_hostname",
+		wantErr: "hostname: duplicated value",
+		lease: &dhcpsvc.Lease{
+			Hostname: existingHostname,
+			HWAddr:   otherMAC,
+			IP:       nonExistingIP,
+			IsStatic: true,
+		},
+	}, {
+		name:    "non_empty_hostname_duplicate_ip",
+		wantErr: "ip address: duplicated value",
+		lease: &dhcpsvc.Lease{
+			Hostname: "new-client",
+			HWAddr:   otherMAC,
+			IP:       existingIP,
+			IsStatic: true,
+		},
+	}}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Don't run subtests in parallel because they modify the server's
+			// leases.
+			err = s4.validateStaticLease(tc.lease)
+			testutil.AssertErrorMsg(t, tc.wantErr, err)
+		})
+	}
 }

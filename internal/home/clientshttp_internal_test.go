@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"slices"
 	"testing"
-	"time"
 
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
@@ -21,9 +20,6 @@ import (
 	"github.com/t3gemstone/AdGuardHome/internal/schedule"
 	"github.com/t3gemstone/AdGuardHome/internal/whois"
 )
-
-// testTimeout is the common timeout for tests and contexts.
-const testTimeout = 1 * time.Second
 
 const (
 	testClientIP1 = "1.1.1.1"
@@ -53,7 +49,7 @@ func (c *testBlockedClientChecker) IsBlockedClient(
 func newPersistentClient(name string) (c *client.Persistent) {
 	return &client.Persistent{
 		Name: name,
-		UID:  client.MustNewUID(),
+		UID:  client.NewUID(),
 		BlockedServices: &filtering.BlockedServices{
 			Schedule: schedule.EmptyWeekly(),
 		},

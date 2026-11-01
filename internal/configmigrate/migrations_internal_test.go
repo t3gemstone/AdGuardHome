@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/t3gemstone/AdGuardHome/internal/dnsforward"
-	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // emptyMigrator is a helper function that returns initialized with empty values
@@ -1433,7 +1433,7 @@ func TestUpgradeSchema22to23(t *testing.T) {
 		want: yobj{
 			"http": yobj{
 				"address":     "1.2.3.4:8081",
-				"session_ttl": "720h",
+				"session_ttl": "30d",
 			},
 			"schema_version": newSchemaVer,
 		},
@@ -1447,7 +1447,7 @@ func TestUpgradeSchema22to23(t *testing.T) {
 		want: yobj{
 			"http": yobj{
 				"address":     "[2001:db8::1]:8081",
-				"session_ttl": "720h",
+				"session_ttl": "30d",
 			},
 			"schema_version": newSchemaVer,
 		},
@@ -1852,7 +1852,7 @@ func TestUpgradeSchema27to28(t *testing.T) {
 		},
 		want: yobj{
 			"dns": yobj{
-				"upstream_mode": dnsforward.UpstreamModeLoadBalance,
+				"upstream_mode": proxy.UpstreamModeLoadBalance,
 			},
 			"schema_version": newSchemaVer,
 		},
@@ -1866,7 +1866,7 @@ func TestUpgradeSchema27to28(t *testing.T) {
 		},
 		want: yobj{
 			"dns": yobj{
-				"upstream_mode": dnsforward.UpstreamModeParallel,
+				"upstream_mode": proxy.UpstreamModeParallel,
 			},
 			"schema_version": newSchemaVer,
 		},
@@ -1880,7 +1880,7 @@ func TestUpgradeSchema27to28(t *testing.T) {
 		},
 		want: yobj{
 			"dns": yobj{
-				"upstream_mode": dnsforward.UpstreamModeParallel,
+				"upstream_mode": proxy.UpstreamModeParallel,
 			},
 			"schema_version": newSchemaVer,
 		},
@@ -1894,7 +1894,7 @@ func TestUpgradeSchema27to28(t *testing.T) {
 		},
 		want: yobj{
 			"dns": yobj{
-				"upstream_mode": dnsforward.UpstreamModeFastestAddr,
+				"upstream_mode": proxy.UpstreamModeFastestAddr,
 			},
 			"schema_version": newSchemaVer,
 		},

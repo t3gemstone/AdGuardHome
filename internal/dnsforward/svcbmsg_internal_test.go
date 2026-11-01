@@ -4,27 +4,31 @@ import (
 	"net"
 	"testing"
 
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
+	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/AdguardTeam/urlfilter/rules"
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/assert"
-	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 func TestGenAnswerHTTPS_andSVCB(t *testing.T) {
 	// Preconditions.
 
-	s := createTestServer(t, &filtering.Config{
-		BlockingMode: filtering.BlockingModeDefault,
-	}, ServerConfig{
-		TLSConf: &TLSConfig{},
-		Config: Config{
-			UpstreamMode:     UpstreamModeLoadBalance,
+	s := createTestServer(
+		t,
+		&filtering.Config{
+			BlockingMode: filtering.BlockingModeDefault,
+		},
+		ServerConfig{
+			TLSConf:          &TLSConfig{},
+			UpstreamMode:     proxy.UpstreamModeLoadBalance,
 			EDNSClientSubnet: &EDNSClientSubnet{Enabled: false},
 			ClientsContainer: EmptyClientsContainer{},
+			ServePlainDNS:    true,
 		},
-		ServePlainDNS: true,
-	})
+		testTLSManager,
+	)
 
 	req := &dns.Msg{
 		Question: []dns.Question{{

@@ -13,13 +13,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/AdguardTeam/golibs/errors"
-	"github.com/AdguardTeam/golibs/logutil/slogutil"
-	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/t3gemstone/AdGuardHome/internal/agh"
 	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
 	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
 	"github.com/t3gemstone/AdGuardHome/internal/aghos"
+	"github.com/t3gemstone/AdGuardHome/internal/configmgr"
+	"github.com/AdguardTeam/golibs/errors"
+	"github.com/AdguardTeam/golibs/logutil/slogutil"
+	"github.com/AdguardTeam/golibs/timeutil"
 	"go.etcd.io/bbolt"
 	bbolterrors "go.etcd.io/bbolt/errors"
 )
@@ -98,8 +99,9 @@ type Interface interface {
 	// clients with the most number of requests.
 	TopClientsIP(limit uint) []netip.Addr
 
-	// WriteDiskConfig puts the Interface's configuration to the dc.
-	WriteDiskConfig(dc *Config)
+	// WriteDiskConfig puts the Interface's configuration to the dc.  dc must
+	// not be nil.
+	WriteDiskConfig(dc *configmgr.StatsConfig)
 
 	// ShouldCount returns true if request for the host should be counted.
 	ShouldCount(host string, qType, qClass uint16, ids []string) bool
@@ -257,16 +259,18 @@ func (s *StatsCtx) Close() (err error) {
 		err = errors.WithDeferred(err, cerr)
 	}()
 
+	// NOTE:  This mutex, when combined with the database transaction, is
+	// required to be locked first.
+	s.currMu.RLock()
+	defer s.currMu.RUnlock()
+
+	udb := s.curr.serialize()
+
 	tx, err := db.Begin(true)
 	if err != nil {
 		return fmt.Errorf("opening transaction: %w", err)
 	}
 	defer func() { err = errors.WithDeferred(err, finishTxn(tx, err == nil)) }()
-
-	s.currMu.RLock()
-	defer s.currMu.RUnlock()
-
-	udb := s.curr.serialize()
 
 	return s.flushUnitToDB(udb, tx, s.curr.id)
 }
@@ -301,13 +305,14 @@ func (s *StatsCtx) Update(e *Entry) {
 }
 
 // WriteDiskConfig implements the [Interface] interface for *StatsCtx.
-func (s *StatsCtx) WriteDiskConfig(dc *Config) {
+func (s *StatsCtx) WriteDiskConfig(dc *configmgr.StatsConfig) {
 	s.confMu.RLock()
 	defer s.confMu.RUnlock()
 
-	dc.Ignored = s.ignored
-	dc.Limit = s.limit
 	dc.Enabled = s.enabled
+	dc.Ignored = s.ignored.Values()
+	dc.IgnoredEnabled = s.ignored.IsEnabled()
+	dc.Interval = timeutil.Duration(s.limit)
 }
 
 // TopClientsIP implements the [Interface] interface for *StatsCtx.
@@ -421,6 +426,8 @@ func (s *StatsCtx) flush() (cont bool, sleepFor time.Duration) {
 	s.confMu.Lock()
 	defer s.confMu.Unlock()
 
+	// NOTE:  This mutex, when combined with the database transaction, is
+	// required to be locked first.
 	s.currMu.Lock()
 	defer s.currMu.Unlock()
 
@@ -571,6 +578,11 @@ func (s *StatsCtx) loadUnits(limit uint32) (units []*unitDB, curID uint32) {
 		return nil, 0
 	}
 
+	// NOTE:  This mutex, when combined with the database transaction, is
+	// required to be locked first.
+	s.currMu.RLock()
+	defer s.currMu.RUnlock()
+
 	// Use writable transaction to ensure any ongoing writable transaction is
 	// taken into account.
 	tx, err := db.Begin(true)
@@ -579,10 +591,6 @@ func (s *StatsCtx) loadUnits(limit uint32) (units []*unitDB, curID uint32) {
 
 		return nil, 0
 	}
-
-	s.currMu.RLock()
-	defer s.currMu.RUnlock()
-
 	cur := s.curr
 
 	if cur != nil {

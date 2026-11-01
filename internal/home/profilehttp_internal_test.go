@@ -3,25 +3,22 @@ package home
 import (
 	"bytes"
 	"context"
-	"encoding/binary"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtest"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/httphdr"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/t3gemstone/AdGuardHome/internal/agh"
-	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
-	"github.com/t3gemstone/AdGuardHome/internal/aghtest"
-	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,8 +27,6 @@ func TestWeb_HandleGetProfile(t *testing.T) {
 
 	const (
 		testTTL = 60
-
-		glTokenFileSuffix = "test"
 
 		userName     = "name"
 		userPassword = "password"
@@ -43,14 +38,6 @@ func TestWeb_HandleGetProfile(t *testing.T) {
 	require.NoError(t, err)
 
 	tempDir := t.TempDir()
-	glFilePrefix = tempDir + "/gl_token_"
-	glTokenFile := glFilePrefix + glTokenFileSuffix
-
-	glFileData := make([]byte, 4)
-	binary.NativeEndian.PutUint32(glFileData, uint32(time.Now().Unix()+testTTL))
-
-	err = os.WriteFile(glTokenFile, glFileData, 0o644)
-	require.NoError(t, err)
 
 	sessionsDB := filepath.Join(tempDir, "sessions.db")
 
@@ -63,7 +50,6 @@ func TestWeb_HandleGetProfile(t *testing.T) {
 
 	auth, err := newAuth(testutil.ContextWithTimeout(t, testTimeout), &authConfig{
 		baseLogger:     testLogger,
-		mux:            baseMux,
 		rateLimiter:    emptyRateLimiter{},
 		trustedProxies: testTrustedProxies,
 		dbFilename:     sessionsDB,
@@ -75,21 +61,18 @@ func TestWeb_HandleGetProfile(t *testing.T) {
 
 	t.Cleanup(func() { auth.close(testutil.ContextWithTimeout(t, testTimeout)) })
 
-	tlsMgr, err := newTLSManager(testutil.ContextWithTimeout(t, testTimeout), &tlsManagerConfig{
-		logger:       testLogger,
-		confModifier: agh.EmptyConfigModifier{},
-		manager:      aghtls.EmptyManager{},
+	ctx := testutil.ContextWithTimeout(t, testTimeout)
+	m, err := aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{
+		Logger: testLogger,
 	})
 	require.NoError(t, err)
 
 	web := newTestWeb(t, &webConfig{
-		tlsManager: tlsMgr,
+		tlsManager: m,
 		auth:       auth,
 		mux:        baseMux,
 	})
 	require.NoError(t, err)
-
-	globalContext.web = web
 
 	mux := auth.middleware().Wrap(baseMux)
 
@@ -102,8 +85,7 @@ func TestWeb_HandleGetProfile(t *testing.T) {
 	}))
 
 	require.True(t, t.Run("add_user", func(t *testing.T) {
-		ctx := testutil.ContextWithTimeout(t, testTimeout)
-		err = auth.addUser(ctx, user, userPassword)
+		err = auth.addUser(testutil.ContextWithTimeout(t, testTimeout), user, userPassword)
 		require.NoError(t, err)
 
 		w := httptest.NewRecorder()
@@ -135,13 +117,19 @@ func TestWeb_HandlePutProfile(t *testing.T) {
 		OnApply: func(_ context.Context) { isConfigChanged = true },
 	}
 
+	ctx := testutil.ContextWithTimeout(t, testTimeout)
+	m, err := aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{
+		Logger: testLogger,
+	})
+	require.NoError(t, err)
+
 	web := newTestWeb(t, &webConfig{
 		mux:            mux,
 		configModifier: confModifier,
 		httpReg:        httpReg,
+		tlsManager:     m,
 	})
 
-	globalContext.web = web
 	mw.set(web)
 
 	var (

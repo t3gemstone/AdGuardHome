@@ -64,7 +64,7 @@ func (s *v4Server) newDHCPConn(iface *net.Interface) (c net.PacketConn, err erro
 		// requests from all the interfaces.  Inspect the ways to
 		// specify the interface-specific listening addresses.
 		//
-		// See https://github.com/AdguardTeam/AdGuardHome/issues/3539.
+		// See https://github.com/t3gemstone/AdGuardHome/issues/3539.
 		IP:   net.IP{0, 0, 0, 0},
 		Port: dhcpv4.ServerPort,
 	})
@@ -93,7 +93,7 @@ func (c *dhcpConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
 		// that is configured.  For now it may be not what users expect
 		// so additionally broadcast the message via UDP connection.
 		//
-		// See https://github.com/AdguardTeam/AdGuardHome/issues/3539.
+		// See https://github.com/t3gemstone/AdGuardHome/issues/3539.
 		var rerr error
 		n, rerr = c.unicast(p, addr)
 
@@ -259,8 +259,8 @@ func (s *v4Server) send(peer net.Addr, conn net.PacketConn, req, resp *dhcpv4.DH
 		// Unicast DHCPOFFER and DHCPACK messages to the client's hardware
 		// address and yiaddr.
 		peer = &dhcpUnicastAddr{
-			Addr:   raw.Addr{HardwareAddr: req.ClientHWAddr},
-			yiaddr: resp.YourIPAddr,
+			HardwareAddr: req.ClientHWAddr,
+			yiaddr:       resp.YourIPAddr,
 		}
 	default:
 		// Go on since peer is already set to broadcast.

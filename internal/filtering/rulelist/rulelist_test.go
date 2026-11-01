@@ -39,7 +39,7 @@ const (
 
 	// testRuleTextCosmetic is a cosmetic rule with a zero-width non-joiner.
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/6003.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/6003.
 	testRuleTextCosmetic = "||cosmetic.example## :has-text(/\u200c/i)\n"
 )
 
@@ -60,7 +60,7 @@ func newFilter(tb testing.TB, u *url.URL, name string) (f *rulelist.Filter) {
 	f, err := rulelist.NewFilter(&rulelist.FilterConfig{
 		URL:         u,
 		Name:        name,
-		UID:         rulelist.MustNewUID(),
+		UID:         rulelist.NewUID(),
 		URLFilterID: newURLFilterID(),
 		Enabled:     true,
 	})

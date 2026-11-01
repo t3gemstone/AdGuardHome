@@ -52,7 +52,7 @@ func fromLease(l *dhcpsvc.Lease) (dl *dbLease) {
 		// The front-end is waiting for RFC 3999 format of the time value.  It
 		// also shouldn't got an Expiry field for static leases.
 		//
-		// See https://github.com/AdguardTeam/AdGuardHome/issues/2692.
+		// See https://github.com/t3gemstone/AdGuardHome/issues/2692.
 		expiryStr = l.Expiry.Format(time.RFC3339)
 	}
 
@@ -155,11 +155,24 @@ func (s *server) dbStore() (err error) {
 	leases := []*dbLease{}
 
 	for _, l := range s.srv4.getLeasesRef() {
+		// Non-static leases with zero [dhcpsvc.Lease.Expiry] are the
+		// uncommitted leases allocated during DHCPDISCOVER, and they must not
+		// be persisted.
+		//
+		// See https://github.com/t3gemstone/AdGuardHome/issues/8572.
+		if !l.IsStatic && l.Expiry.IsZero() {
+			continue
+		}
+
 		leases = append(leases, fromLease(l))
 	}
 
 	if s.srv6 != nil {
 		for _, l := range s.srv6.getLeasesRef() {
+			if !l.IsStatic && l.Expiry.IsZero() {
+				continue
+			}
+
 			leases = append(leases, fromLease(l))
 		}
 	}

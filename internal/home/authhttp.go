@@ -120,7 +120,7 @@ func (web *webAPI) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// The real IP address of the client [realIP] cannot be used here without
 	// taking trusted proxies into account due to security issues:
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/2799.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/2799.
 	if remoteIPStr, err = netutil.SplitHost(r.RemoteAddr); err != nil {
 		web.writeErrorWithIP(
 			ctx,
@@ -310,6 +310,12 @@ func isPublicResource(p string) (ok bool) {
 		panic(fmt.Errorf("bad login pattern: %w", err))
 	}
 
+	isForgotPassword, err := path.Match("/forgot_password.*", p)
+	if err != nil {
+		// Same as above.
+		panic(fmt.Errorf("bad forgot password pattern: %w", err))
+	}
+
 	paths := []string{
 		"/control/login",
 		"/apple/doh.mobileconfig",
@@ -320,17 +326,7 @@ func isPublicResource(p string) (ok bool) {
 		"/install.html",
 	}
 
-	return isAsset || isLogin || slices.Contains(paths, p)
-}
-
-// isDoHRoute returns true if r is a request to a DoH route.  r must not be nil.
-func (mw *authMiddlewareDefault) isDoHRoute(r *http.Request) (ok bool) {
-	_, pattern := mw.mux.Handler(r)
-	if pattern == "" {
-		return false
-	}
-
-	return slices.Contains(mw.doHRoutes, pattern)
+	return isAsset || isLogin || isForgotPassword || slices.Contains(paths, p)
 }
 
 const (
@@ -347,9 +343,6 @@ type authMiddlewareDefaultConfig struct {
 	// TODO(e.burkov):  Require a logger in request's context instead.
 	logger *slog.Logger
 
-	// mux is the server's multiplexer.  It must not be nil.
-	mux *http.ServeMux
-
 	// rateLimiter manages the rate limiting for login attempts.
 	rateLimiter loginRateLimiter
 
@@ -364,9 +357,6 @@ type authMiddlewareDefaultConfig struct {
 
 	// users contains web user information.  It must not be nil.
 	users aghuser.DB
-
-	// doHRoutes is a list of DoH routes for public access.
-	doHRoutes []string
 }
 
 // authMiddlewareDefault is the default authentication middleware.  It searches
@@ -374,12 +364,10 @@ type authMiddlewareDefaultConfig struct {
 // passes it with the context.
 type authMiddlewareDefault struct {
 	logger         *slog.Logger
-	mux            *http.ServeMux
 	rateLimiter    loginRateLimiter
 	trustedProxies netutil.SubnetSet
 	sessions       aghuser.SessionStorage
 	users          aghuser.DB
-	doHRoutes      []string
 }
 
 // newAuthMiddlewareDefault returns the new properly initialized
@@ -387,12 +375,10 @@ type authMiddlewareDefault struct {
 func newAuthMiddlewareDefault(c *authMiddlewareDefaultConfig) (mw *authMiddlewareDefault) {
 	return &authMiddlewareDefault{
 		logger:         c.logger,
-		mux:            c.mux,
 		rateLimiter:    c.rateLimiter,
 		trustedProxies: c.trustedProxies,
 		sessions:       c.sessions,
 		users:          c.users,
-		doHRoutes:      c.doHRoutes,
 	}
 }
 
@@ -444,7 +430,7 @@ func (mw *authMiddlewareDefault) handleAuthenticatedUser(
 		return false
 	}
 
-	if path == "/login.html" {
+	if path == "/login.html" || path == "/forgot_password.html" {
 		http.Redirect(w, r, "/", http.StatusFound)
 
 		return true
@@ -463,7 +449,7 @@ func (mw *authMiddlewareDefault) handlePublicAccess(
 	h http.Handler,
 	path string,
 ) (ok bool) {
-	if isPublicResource(path) || mw.isDoHRoute(r) {
+	if isPublicResource(path) {
 		h.ServeHTTP(w, r)
 
 		return true
@@ -567,7 +553,7 @@ func (mw *authMiddlewareDefault) userFromRequestBasicAuth(
 	// The real IP address of the client [realIP] cannot be used here without
 	// taking trusted proxies into account due to security issues:
 	//
-	// See https://github.com/AdguardTeam/AdGuardHome/issues/2799.
+	// See https://github.com/t3gemstone/AdGuardHome/issues/2799.
 	if remoteIP, err = netutil.SplitHost(r.RemoteAddr); err != nil {
 		return nil, fmt.Errorf("getting remote address: %w", err)
 	}

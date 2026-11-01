@@ -216,23 +216,26 @@ func TestServer_middlewareUDP(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			s := createTestServer(t, &filtering.Config{
-				BlockingMode: filtering.BlockingModeDefault,
-			}, ServerConfig{
-				UDPListenAddrs: []*net.UDPAddr{{}},
-				TCPListenAddrs: []*net.TCPAddr{{}},
-				TLSConf:        &TLSConfig{},
-				Config: Config{
+			s := createTestServer(
+				t,
+				&filtering.Config{
+					BlockingMode: filtering.BlockingModeDefault,
+				},
+				ServerConfig{
+					UDPListenAddrs:    []*net.UDPAddr{{}},
+					TCPListenAddrs:    []*net.TCPAddr{{}},
+					TLSConf:           &TLSConfig{},
 					AllowedClients:    tc.allowedClients,
 					DisallowedClients: tc.disallowedClients,
 					BlockedHosts:      tc.blockedHosts,
 					UpstreamDNS:       []string{localUpsAddr},
-					UpstreamMode:      UpstreamModeLoadBalance,
+					UpstreamMode:      proxy.UpstreamModeLoadBalance,
 					EDNSClientSubnet:  &EDNSClientSubnet{Enabled: false},
 					ClientsContainer:  EmptyClientsContainer{},
+					ServePlainDNS:     true,
 				},
-				ServePlainDNS: true,
-			})
+				testTLSManager,
+			)
 
 			startDeferStop(t, s)
 

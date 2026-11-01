@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
-	"time"
 
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/dnsproxy/upstream"
@@ -29,6 +28,8 @@ func newBootstrap(
 	etcHosts upstream.Resolver,
 	opts *upstream.Options,
 ) (r upstream.Resolver, boots []*upstream.UpstreamResolver, err error) {
+	addrs = stringutil.FilterOut(addrs, aghnet.IsCommentOrEmpty)
+
 	if len(addrs) == 0 {
 		addrs = defaultBootstrap
 	}
@@ -136,26 +137,4 @@ func newPrivateConfig(
 	}
 
 	return uc, nil
-}
-
-// setProxyUpstreamMode sets the upstream mode and related settings in conf
-// based on provided parameters.
-func setProxyUpstreamMode(
-	conf *proxy.Config,
-	upstreamMode UpstreamMode,
-	fastestTimeout time.Duration,
-) (err error) {
-	switch upstreamMode {
-	case UpstreamModeParallel:
-		conf.UpstreamMode = proxy.UpstreamModeParallel
-	case UpstreamModeFastestAddr:
-		conf.UpstreamMode = proxy.UpstreamModeFastestAddr
-		conf.FastestPingTimeout = fastestTimeout
-	case UpstreamModeLoadBalance:
-		conf.UpstreamMode = proxy.UpstreamModeLoadBalance
-	default:
-		return fmt.Errorf("unexpected value %q", upstreamMode)
-	}
-
-	return nil
 }

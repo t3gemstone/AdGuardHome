@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
+	"github.com/t3gemstone/AdGuardHome/internal/version"
 	"github.com/AdguardTeam/golibs/httphdr"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/netutil/urlutil"
 	"github.com/NYTimes/gziphandler"
-	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
-	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
-	"github.com/t3gemstone/AdGuardHome/internal/dnsforward"
-	"github.com/t3gemstone/AdGuardHome/internal/version"
 )
 
 // appendDNSAddrs is a convenient helper for appending a formatted form of DNS
@@ -68,8 +68,8 @@ func appendDNSAddrsWithIfaces(dst []string, src []netip.Addr) (res []string, err
 
 // collectDNSAddresses returns the list of DNS addresses the server is listening
 // on, including the addresses on all interfaces in cases of unspecified IPs.
-// tlsMgr must not be nil.
-func collectDNSAddresses(tlsMgr *tlsManager) (addrs []string, err error) {
+// extTLSConf must not be nil.
+func collectDNSAddresses(extTLSConf *aghtls.ExtendedTLSConfig) (addrs []string, err error) {
 	if hosts := config.DNS.BindHosts; len(hosts) == 0 {
 		addrs = appendDNSAddrs(addrs, netutil.IPv4Localhost())
 	} else {
@@ -79,7 +79,8 @@ func collectDNSAddresses(tlsMgr *tlsManager) (addrs []string, err error) {
 		}
 	}
 
-	de := getDNSEncryption(tlsMgr)
+	hasDoHRoutes := len(config.HTTPConfig.DoH.Routes) > 0
+	de := getDNSEncryption(extTLSConf, hasDoHRoutes)
 	if de.https != "" {
 		addrs = append(addrs, de.https)
 	}
@@ -121,7 +122,9 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	l := web.logger
 
-	dnsAddrs, err := collectDNSAddresses(web.tlsManager)
+	extTLSConfig := web.tlsManager.ExtendedTLSConfig()
+
+	dnsAddrs, err := collectDNSAddresses(extTLSConfig)
 	if err != nil {
 		// Don't add a lot of formatting, since the error is already
 		// wrapped by collectDNSAddresses.
@@ -131,13 +134,10 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		fltConf           *dnsforward.Config
 		protDisabledUntil *time.Time
 		protEnabled       bool
 	)
 	if globalContext.dnsServer != nil {
-		fltConf = &dnsforward.Config{}
-		globalContext.dnsServer.WriteDiskConfig(fltConf)
 		protEnabled, protDisabledUntil = globalContext.dnsServer.UpdatedProtectionStatus(ctx)
 	}
 
@@ -178,6 +178,10 @@ func (web *webAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 // registerControlHandlers sets up HTTP handlers for various control endpoints.
 func (web *webAPI) registerControlHandlers() {
 	mux := web.conf.mux
+
+	web.httpReg.Register(http.MethodGet, "/control/tls/status", web.handleTLSStatus)
+	web.httpReg.Register(http.MethodPost, "/control/tls/configure", web.handleTLSConfigure)
+	web.httpReg.Register(http.MethodPost, "/control/tls/validate", web.handleTLSValidate)
 
 	mux.Handle(
 		"/control/version.json",

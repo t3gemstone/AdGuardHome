@@ -23,8 +23,14 @@ func defaultResponse() *dhcpStatusResponse {
 	conf4.LeaseDuration = 86400
 
 	resp := &dhcpStatusResponse{
-		V4:           *conf4,
-		V6:           V6ServerConf{},
+		V4: &v4ServerConfJSON{
+			GatewayIP:     conf4.GatewayIP,
+			RangeStart:    conf4.RangeStart,
+			RangeEnd:      conf4.RangeEnd,
+			SubnetMask:    conf4.SubnetMask,
+			LeaseDuration: conf4.LeaseDuration,
+		},
+		V6:           &v6ServerConfJSON{},
 		Leases:       []*leaseDynamic{},
 		StaticLeases: []*leaseStatic{},
 		Enabled:      true,
@@ -210,6 +216,14 @@ func TestServer_HandleUpdateStaticLease(t *testing.T) {
 			Hostname: "updated-client-v4",
 		},
 	}, {
+		name: "update_v4_empty_hostname",
+		pos:  leaseV4Pos,
+		lease: &leaseStatic{
+			HWAddr:   leaseV4MAC,
+			IP:       leaseV4IP,
+			Hostname: "",
+		},
+	}, {
 		name: "update_v4_ip",
 		pos:  leaseV4Pos,
 		lease: &leaseStatic{
@@ -306,7 +320,7 @@ func TestServer_HandleUpdateStaticLease_validation(t *testing.T) {
 			IP:       anotherV4IP,
 			Hostname: leaseV4Name,
 		},
-		want: "dhcpv4: updating static lease: ip address is not unique\n",
+		want: "dhcpv4: updating static lease: ip address: duplicated value\n",
 	}, {
 		name: "update_v4_same_name",
 		lease: &leaseStatic{
@@ -314,7 +328,7 @@ func TestServer_HandleUpdateStaticLease_validation(t *testing.T) {
 			IP:       leaseV4IP,
 			Hostname: anotherV4Name,
 		},
-		want: "dhcpv4: updating static lease: hostname is not unique\n",
+		want: "dhcpv4: updating static lease: hostname: duplicated value\n",
 	}}
 
 	for _, tc := range testCases {

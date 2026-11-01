@@ -8,15 +8,22 @@ fi
 
 set -e -f -u
 
+version="${VERSION:?please set VERSION}"
+readonly version
+
 channel="${CHANNEL:?please set CHANNEL}"
 readonly channel
 
-version="${VERSION:?please set VERSION}"
-readonly version
+cache_buster="${CACHE_BUSTER:-0}"
+readonly cache_buster
 
 while read -r arch snap_arch; do
 	release_url="https://github.com/t3gemstone/AdGuardHome/releases/download/${version}/AdGuardHome_linux_${arch}.tar.gz"
 	output="./AdGuardHome_linux_${arch}.tar.gz"
+
+	if [ -n "$cache_buster" ]; then
+		release_url="${release_url}?cache_buster=${cache_buster}"
+	fi
 
 	curl -o "$output" -v "$release_url"
 	tar -f "$output" -v -x -z

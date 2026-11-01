@@ -9,13 +9,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/configmgr"
+	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 	"github.com/AdguardTeam/golibs/container"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/miekg/dns"
-	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
-	"github.com/t3gemstone/AdGuardHome/internal/filtering"
 )
 
 // queryLogFileName is a name of the log file.  ".gz" extension is added later
@@ -140,11 +141,20 @@ func validateIvl(ivl time.Duration) (err error) {
 }
 
 // WriteDiskConfig implements the [QueryLog] interface for *queryLog.
-func (l *queryLog) WriteDiskConfig(c *Config) {
+func (l *queryLog) WriteDiskConfig(dc *configmgr.QueryLogConfig, dnsConf *configmgr.DNSConfig) {
 	l.confMu.RLock()
 	defer l.confMu.RUnlock()
 
-	*c = *l.conf
+	c := l.conf
+
+	dc.Ignored = c.Ignored.Values()
+	dc.Interval = timeutil.Duration(c.RotationIvl)
+	dc.MemSize = c.MemSize
+	dc.Enabled = c.Enabled
+	dc.FileEnabled = c.FileEnabled
+	dc.IgnoredEnabled = c.Ignored.IsEnabled()
+
+	dnsConf.AnonymizeClientIP = c.AnonymizeClientIP
 }
 
 // Clear memory buffer and remove log files

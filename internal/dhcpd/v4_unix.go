@@ -13,14 +13,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
+	"github.com/t3gemstone/AdGuardHome/internal/configmgr"
+	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/log"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/timeutil"
 	"github.com/insomniacslk/dhcp/dhcpv4"
 	"github.com/insomniacslk/dhcp/dhcpv4/server4"
-	"github.com/t3gemstone/AdGuardHome/internal/aghnet"
-	"github.com/t3gemstone/AdGuardHome/internal/dhcpsvc"
 
 	//lint:ignore SA1019 See the TODO in go.mod.
 	"github.com/go-ping/ping"
@@ -63,15 +64,25 @@ func (s *v4Server) enabled() (ok bool) {
 	return s.conf != nil && s.conf.Enabled
 }
 
-// WriteDiskConfig4 - write configuration
-func (s *v4Server) WriteDiskConfig4(c *V4ServerConf) {
-	if s.conf != nil {
-		*c = *s.conf
+// WriteDiskConfig4 implements the [DHCPServer] interface for *v4Server.
+func (s *v4Server) WriteDiskConfig4(dc *configmgr.DHCPv4Config) {
+	if s.conf == nil {
+		return
 	}
+
+	dc.GatewayIP = s.conf.GatewayIP
+	dc.RangeStart = s.conf.RangeStart
+	dc.RangeEnd = s.conf.RangeEnd
+	dc.SubnetMask = s.conf.SubnetMask
+
+	dc.Options = s.conf.Options
+	dc.ICMPTimeout = s.conf.ICMPTimeout
+	dc.LeaseDuration = s.conf.LeaseDuration
 }
 
-// WriteDiskConfig6 - write configuration
-func (s *v4Server) WriteDiskConfig6(c *V6ServerConf) {
+// WriteDiskConfig6 implements the [DHCPServer] interface for *v4Server.
+func (s *v4Server) WriteDiskConfig6(_ *configmgr.DHCPv6Config) {
+	// Do nothing.
 }
 
 // normalizeHostname normalizes a hostname sent by the client.  If err is not
@@ -313,16 +324,6 @@ func (s *v4Server) rmDynamicLease(lease *dhcpsvc.Lease) (err error) {
 	return nil
 }
 
-const (
-	// ErrDupHostname is returned by addLease, validateStaticLease when the
-	// modified lease has a not empty non-unique hostname.
-	ErrDupHostname = errors.Error("hostname is not unique")
-
-	// ErrDupIP is returned by addLease, validateStaticLease when the modified
-	// lease has a non-unique IP address.
-	ErrDupIP = errors.Error("ip address is not unique")
-)
-
 // addLease adds a dynamic or static lease.
 func (s *v4Server) addLease(l *dhcpsvc.Lease) (err error) {
 	r := s.conf.ipRange
@@ -342,7 +343,7 @@ func (s *v4Server) addLease(l *dhcpsvc.Lease) (err error) {
 	// TODO(e.burkov):  l must have a valid hostname here, investigate.
 	if l.Hostname != "" {
 		if _, ok := s.hostsIndex[l.Hostname]; ok {
-			return ErrDupHostname
+			return fmt.Errorf("hostname: %w", errors.ErrDuplicated)
 		}
 
 		s.hostsIndex[l.Hostname] = l
@@ -485,22 +486,24 @@ func (s *v4Server) validateStaticLease(l *dhcpsvc.Lease) (err error) {
 		return err
 	}
 
-	err = netutil.ValidateHostname(hostname)
-	if err != nil {
-		return fmt.Errorf("validating hostname: %w", err)
-	}
+	if hostname != "" {
+		err = netutil.ValidateHostname(hostname)
+		if err != nil {
+			return fmt.Errorf("hostname: %w", err)
+		}
 
-	dup, ok := s.hostsIndex[hostname]
-	if ok && !bytes.Equal(dup.HWAddr, l.HWAddr) {
-		return ErrDupHostname
-	}
-
-	dup, ok = s.ipIndex[l.IP]
-	if ok && !bytes.Equal(dup.HWAddr, l.HWAddr) {
-		return ErrDupIP
+		dup, ok := s.hostsIndex[hostname]
+		if ok && !bytes.Equal(dup.HWAddr, l.HWAddr) {
+			return fmt.Errorf("hostname: %w", errors.ErrDuplicated)
+		}
 	}
 
 	l.Hostname = hostname
+
+	dup, ok := s.ipIndex[l.IP]
+	if ok && !bytes.Equal(dup.HWAddr, l.HWAddr) {
+		return fmt.Errorf("ip address: %w", errors.ErrDuplicated)
+	}
 
 	if gwIP := s.conf.GatewayIP; gwIP == l.IP {
 		return fmt.Errorf("can't assign the gateway IP %q to the lease", gwIP)
@@ -1339,12 +1342,19 @@ func (s *v4Server) Start(ctx context.Context) (err error) {
 		return err
 	}
 
+	opts := []server4.ServerOpt{
+		server4.WithConn(c),
+	}
+
+	if log.GetLevel() != log.OFF {
+		opts = append(opts, server4.WithDebugLogger())
+	}
+
 	s.srv, err = server4.NewServer(
 		iface.Name,
 		nil,
 		s.packetHandler,
-		server4.WithConn(c),
-		server4.WithDebugLogger(),
+		opts...,
 	)
 	if err != nil {
 		return err
@@ -1410,8 +1420,8 @@ func (s *v4Server) Stop() (err error) {
 	return nil
 }
 
-// Create DHCPv4 server
-func v4Create(conf *V4ServerConf) (srv *v4Server, err error) {
+// newV4Server creates a new IPv4 DHCP server.  conf must not be nil.
+func newV4Server(conf *V4ServerConf) (srv *v4Server, err error) {
 	s := &v4Server{
 		hostsIndex: map[string]*dhcpsvc.Lease{},
 		ipIndex:    map[netip.Addr]*dhcpsvc.Lease{},

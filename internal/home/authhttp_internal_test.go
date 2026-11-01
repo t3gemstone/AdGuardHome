@@ -18,14 +18,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
+	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
+	"github.com/t3gemstone/AdGuardHome/internal/aghuser"
 	"github.com/AdguardTeam/golibs/httphdr"
 	"github.com/AdguardTeam/golibs/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/t3gemstone/AdGuardHome/internal/agh"
-	"github.com/t3gemstone/AdGuardHome/internal/aghhttp"
-	"github.com/t3gemstone/AdGuardHome/internal/aghtls"
-	"github.com/t3gemstone/AdGuardHome/internal/aghuser"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -209,7 +208,6 @@ func TestAuthMiddlewareDefault(t *testing.T) {
 
 	mw := newAuthMiddlewareDefault(&authMiddlewareDefaultConfig{
 		logger:      testLogger,
-		mux:         http.NewServeMux(),
 		rateLimiter: emptyRateLimiter{},
 		sessions:    ts,
 		users:       usersDB,
@@ -237,6 +235,11 @@ func TestAuthMiddlewareDefault(t *testing.T) {
 		req:      authRequest("/login.html", cookie, "", ""),
 		wantUser: nil,
 		name:     "redirect",
+		wantCode: http.StatusFound,
+	}, {
+		req:      authRequest("/forgot_password.html", cookie, "", ""),
+		wantUser: nil,
+		name:     "redirect_password",
 		wantCode: http.StatusFound,
 	}, {
 		req:      authRequest("/control/profile", cookie, "", ""),
@@ -289,12 +292,7 @@ func TestAuthMiddlewareDefault(t *testing.T) {
 func TestAuthMiddlewareDefault_public(t *testing.T) {
 	t.Parallel()
 
-	const (
-		login = aghuser.Login(testUsername)
-
-		dohPath    = "/dns-query"
-		doHPattern = http.MethodGet + " " + dohPath
-	)
+	const login = aghuser.Login(testUsername)
 
 	user := newTestUser(t, testPassword, login)
 	usersDB := newTestUsersDB()
@@ -302,16 +300,11 @@ func TestAuthMiddlewareDefault_public(t *testing.T) {
 		return []*aghuser.User{user}, nil
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle(doHPattern, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-
 	mw := newAuthMiddlewareDefault(&authMiddlewareDefaultConfig{
 		logger:      testLogger,
-		mux:         mux,
 		rateLimiter: emptyRateLimiter{},
 		sessions:    newTestSessionStorage(),
 		users:       usersDB,
-		doHRoutes:   []string{doHPattern},
 	})
 
 	testCases := []struct {
@@ -334,14 +327,6 @@ func TestAuthMiddlewareDefault_public(t *testing.T) {
 		req:      httptest.NewRequest(http.MethodGet, "/apple/doh.mobileconfig", nil),
 		name:     "public_doh_config",
 		wantCode: http.StatusOK,
-	}, {
-		req:      httptest.NewRequest(http.MethodGet, dohPath, nil),
-		name:     "public_doh",
-		wantCode: http.StatusOK,
-	}, {
-		req:      httptest.NewRequest(http.MethodPost, dohPath, nil),
-		name:     "public_doh_invalid",
-		wantCode: http.StatusUnauthorized,
 	}}
 
 	for _, tc := range testCases {
@@ -396,13 +381,19 @@ func TestAuth_ServeHTTP_firstRun(t *testing.T) {
 	mux := http.NewServeMux()
 	httpReg := aghhttp.NewDefaultRegistrar(mux, mw.wrap)
 
+	ctx := testutil.ContextWithTimeout(t, testTimeout)
+	m, err := aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{
+		Logger: testLogger,
+	})
+	require.NoError(t, err)
+
 	web := newTestWeb(t, &webConfig{
 		mux:        mux,
 		httpReg:    httpReg,
 		isFirstRun: true,
+		tlsManager: m,
 	})
 
-	globalContext.web = web
 	mw.set(web)
 
 	testCases := []struct {
@@ -517,40 +508,42 @@ func TestAuth_ServeHTTP_auth(t *testing.T) {
 	writeGLFile(t, tempDir, testTTL)
 	sessionsDB := filepath.Join(tempDir, "sessions.db")
 
+	gliNetRoot, err := os.OpenRoot(tempDir)
+	require.NoError(t, err)
+	testutil.CleanupAndRequireSuccess(t, gliNetRoot.Close)
+
 	mw := &webMw{}
 	baseMux := http.NewServeMux()
 	httpReg := aghhttp.NewDefaultRegistrar(baseMux, mw.wrap)
 
-	tlsMgr, err := newTLSManager(testutil.ContextWithTimeout(t, testTimeout), &tlsManagerConfig{
-		logger:       testLogger,
-		confModifier: agh.EmptyConfigModifier{},
-		manager:      aghtls.EmptyManager{},
+	ctx := testutil.ContextWithTimeout(t, testTimeout)
+	m, err := aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{
+		Logger: testLogger,
 	})
 	require.NoError(t, err)
 
 	auth, err := newAuth(testutil.ContextWithTimeout(t, testTimeout), &authConfig{
-		baseLogger:     testLogger,
-		mux:            baseMux,
-		rateLimiter:    emptyRateLimiter{},
-		trustedProxies: testTrustedProxies,
-		dbFilename:     sessionsDB,
-		users:          users,
-		sessionTTL:     testTTL * time.Second,
-		isGLiNet:       false,
+		baseLogger:      testLogger,
+		rateLimiter:     emptyRateLimiter{},
+		trustedProxies:  testTrustedProxies,
+		gliNetTokenRoot: gliNetRoot,
+		dbFilename:      sessionsDB,
+		users:           users,
+		sessionTTL:      testTTL * time.Second,
+		isGLiNet:        false,
 	})
 	require.NoError(t, err)
 
 	t.Cleanup(func() { auth.close(testutil.ContextWithTimeout(t, testTimeout)) })
 
 	web := newTestWeb(t, &webConfig{
-		tlsManager: tlsMgr,
+		tlsManager: m,
 		auth:       auth,
 		mux:        baseMux,
 		httpReg:    httpReg,
 	})
 	require.NoError(t, err)
 
-	globalContext.web = web
 	mw.set(web)
 
 	mux := auth.middleware().Wrap(baseMux)
@@ -620,8 +613,7 @@ func TestAuth_ServeHTTP_auth(t *testing.T) {
 func writeGLFile(t *testing.T, tempDir string, testTTL int64) {
 	t.Helper()
 
-	glFilePrefix = tempDir + "/gl_token_"
-	glTokenFile := glFilePrefix + "test"
+	glTokenFile := filepath.Join(tempDir, glFilePrefix+"test")
 
 	glFileData := make([]byte, 4)
 	binary.NativeEndian.PutUint32(glFileData, uint32(time.Now().Unix()+testTTL))
@@ -694,7 +686,6 @@ func TestAuth_ServeHTTP_logout(t *testing.T) {
 
 	auth, err := newAuth(testutil.ContextWithTimeout(t, testTimeout), &authConfig{
 		baseLogger:     testLogger,
-		mux:            baseMux,
 		rateLimiter:    emptyRateLimiter{},
 		trustedProxies: testTrustedProxies,
 		dbFilename:     sessionsDB,
@@ -706,14 +697,19 @@ func TestAuth_ServeHTTP_logout(t *testing.T) {
 
 	t.Cleanup(func() { auth.close(testutil.ContextWithTimeout(t, testTimeout)) })
 
-	web := newTestWeb(t, &webConfig{
-		auth:    auth,
-		mux:     baseMux,
-		httpReg: httpReg,
+	ctx := testutil.ContextWithTimeout(t, testTimeout)
+	m, err := aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{
+		Logger: testLogger,
 	})
 	require.NoError(t, err)
 
-	globalContext.web = web
+	web := newTestWeb(t, &webConfig{
+		auth:       auth,
+		mux:        baseMux,
+		httpReg:    httpReg,
+		tlsManager: m,
+	})
+
 	mw.set(web)
 
 	mux := auth.middleware().Wrap(baseMux)
